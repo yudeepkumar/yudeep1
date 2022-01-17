@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configurationfastgo" doc:name="HTTP Request configuration" doc:id="7cc589b9-f502-45c6-9ed4-827f29cac538" >
+		<http:request-connection host="${http.requester.host}" port="${http.requester.port}" />
+	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="0f191b1e-6225-4ed9-a4cb-bb7c2568965f" file="properties\dev.yaml" />
+	<sub-flow name="fastgo-getroutesSub_Flow" doc:id="26cd1065-c67a-428a-807e-3d60ee9962d6" >
+		<http:request method="GET" doc:name="Request" doc:id="a9f7e2fa-a68d-44d1-b36f-008e27bdf0ee" config-ref="HTTP_Request_configurationfastgo" path="/p2/routes">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"transactionid" : vars.transactionid
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="fac58b54-f1b9-4d8f-b7ca-8592eb84b22e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+</mule>

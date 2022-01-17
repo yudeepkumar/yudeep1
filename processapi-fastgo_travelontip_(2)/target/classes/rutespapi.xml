@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="bc9d94bf-8ce0-4976-8919-38e8ef4f9cd4" >
+		<http:request-connection host="${http.requesterfastgo.host}" port="${http.requesterfastgo.port}" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="9968b126-dcd2-4814-9d92-112bc82330c8" >
+		<http:request-connection host="${http.requestertravelontip.host}" port="${http.requestertravelontip.port}" />
+	</http:request-config>
+	<sub-flow name="rutespapiSub_Flow" doc:id="86375d57-35e1-476c-8096-d84cfda4902f" >
+		<choice doc:name="Choice" doc:id="19864fae-8894-407b-b322-ebe0f3470af5" >
+			<when expression="#[vars.companyName == 'fastgo']">
+				<set-variable value='#["/api/" ++ (vars.transporttype default "Bus") ++ p("http.requesterfastgo.routepath")]' doc:name="Set Variable" doc:id="691810d8-f65d-4f35-839b-5ac22a0cfd23" variableName="resourcepath"/>
+				<http:request method="GET" doc:name="Request" doc:id="dcc85239-3aa5-4232-98bc-859bb0b3d179" config-ref="HTTP_Request_configuration" path="#[vars.resourcepath]">
+						<http:headers><![CDATA[#[output application/java
+---
+{
+	"transactionid" : vars.transactionid
+}]]]></http:headers>
+					</http:request>
+				<ee:transform doc:name="Transform Message" doc:id="a8a5fcc7-9484-46a7-85f4-f188405226f2" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(value,index)->{
+ "comapanyCode": vars.companyName,
+"originLocation": {
+"locationCode": value.departureLocationCode,
+"locationDesc":"beavuna singapore"
+ },
+ "DestinationLocation":
+ { "locationCode": value.arrivalLocation, 
+   "locationDesc": "Klang Malaysia" 
+ }
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression="#[vars.companyName == 'travelontip']">
+				<http:request method="GET" doc:name="Request" doc:id="27d77e10-a7cc-43bf-b698-a999eb571366" config-ref="HTTP_Request_configuration1" path="/api/[#vars.transporttype]${http.requestertravelontip.routepath}">
+						<http:headers><![CDATA[#[output application/java
+---
+{
+	"transactionid" : vars.transactionid
+}]]]></http:headers>
+					</http:request>
+			</when>
+		</choice>
+	</sub-flow>
+</mule>

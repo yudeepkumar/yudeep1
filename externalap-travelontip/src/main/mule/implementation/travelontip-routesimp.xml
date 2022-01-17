@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5e739a9a-52f1-48e7-bf8e-df3b6486c601" >
+		<db:my-sql-connection host="${mysql.host}" port="${mysql.port}" user="${mysql.username}" password="${mysql.password}" database="${mysql.dbname}" />
+	</db:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="0ccd9e44-83af-46ab-9fa4-0b81aa2a74ca" file="properties\dev.yaml" />
+	<sub-flow name="travelontip-routesimpSub_Flow" doc:id="5d63f284-2039-4283-8e5e-5b37b2989545" >
+	<db:select doc:name="Select operation for travelontip" doc:id="7e3197a0-74a4-41fc-aa4a-1bb5510cb668" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM travelontip.routes where companyname = "travelontip";]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="f3c4b680-141d-4254-9e4f-6741fde00021" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	
+	</sub-flow>
+</mule>

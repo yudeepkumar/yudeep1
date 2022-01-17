@@ -1,0 +1,8 @@
+http:
+  host: "localhost"
+  port: '8084'
+  
+  requester:
+    host: "localhost"
+    port: "8082"
+  

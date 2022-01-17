@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<error-handler name="globalerrorhandlerError_Handler" doc:id="4bf0f349-0084-47af-8cb9-e0a5819f1ab6" >
+	<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="88b5d96c-cd7e-434d-993c-47b1770d81a3" type="HTTP:CONNECTIVITY">
+				<ee:transform doc:name="Transform Message" doc:id="83e67c43-ce56-4439-9ff0-b8d8511b2bbb" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message":"http connectivity error handled in global block"
+ }]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="6c2bf2ec-07ef-4caa-9c7b-2a7132b34f86" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="ade90630-7180-4c4b-8c83-bc1ceb77f2a0" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message":"default error handler"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		
+	</error-handler>
+</mule>

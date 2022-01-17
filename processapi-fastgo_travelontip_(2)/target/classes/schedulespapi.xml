@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<sub-flow name="schedulespapiSub_Flow" doc:id="97887cca-13a9-4d4a-b8c5-b54f8126a82f" >
+		<logger level="INFO" doc:name="Logger" doc:id="516a49ef-3b21-4c8f-bdde-5cf77eb803e1" />
+	</sub-flow>
+</mule>

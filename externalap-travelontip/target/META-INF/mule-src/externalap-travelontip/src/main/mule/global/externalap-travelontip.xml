@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f1fd4635-c4b9-4cf1-bf44-ddc9e88a65ef" >
+		<http:listener-connection host="${http.host}" port="${http.port}" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="21c1b4c9-4cb5-489d-8f34-3d1d76b08b6f" file="properties\dev.yaml" />
+	<flow name="externalap-travelontipFlow" doc:id="3354b5ce-494d-4904-a29f-aa470fb32b21" >
+		<http:listener doc:name="Listener" doc:id="93aafe5b-4e45-4068-8d8b-f5a1afe9686b" config-ref="HTTP_Listener_config" path="/p1/{servicetype}">
+			<http:error-response>
+				<http:body ><![CDATA[#[vars.errormsg default "Error"]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<ee:transform doc:name="Transform Message" doc:id="dd4001e8-e77e-4f51-9645-140c4d4d7704" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="servicetype" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.uriParams.servicetype]]></ee:set-variable>
+				<ee:set-variable variableName="transactionid" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.headers.transactionid]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="87acf67c-712f-4b01-91d3-448e49256657" message="requset received from travelontip external system transactionid: #[vars.transactionid]" />
+		<choice doc:name="Choice" doc:id="3599123f-85b7-4935-a37d-182b9ecf14ba" >
+			<when expression='#[vars.servicetype == "routes"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="b5b93ccc-4096-4a9b-82e3-ff53c58f4a90" message="logger for routes flow"/>
+				<flow-ref doc:name="Flow Reference" doc:id="c2b0fd65-448d-453d-a67f-8e4cb303ed1d" name="travelontip-routesimpSub_Flow"/>
+			</when>
+			<when expression='#[vars.servicetype == "schedules"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="d291b4ff-0db3-4518-8755-dc214f4f4ac9" message="logger for schedules flow"/>
+				<flow-ref doc:name="Flow Reference" doc:id="0f1f2df7-81ba-4378-b2a5-62d694db6bd6" name="travelontip-schedulesimpSub_Flow"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="a7b0ce76-c2fc-4e99-9d91-f6002eec3902" message="logger for default flow"/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="cdc45524-5f6d-48b4-8148-1987ee058181" message="response send to travelontip external system transactionid: #[vars.transactionid]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="fcbab84b-98c9-4cfe-bbdb-9fc3a830be0e" >
+				<logger level="INFO" doc:name="Logger" doc:id="387910fc-3c58-4810-bfc8-6eeeac126daa" message="payload"/>
+				<ee:transform doc:name="Transform Message" doc:id="c4180f00-d434-4259-a429-8ee8ea447eba" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="errormsg" ><![CDATA[%dw 2.0
+output application/json
+---
+{ 
+	"Errormessage":"Error occured in external ststem of travelontrip"
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
